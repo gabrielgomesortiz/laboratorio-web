@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { API_ROUTES } from '../../config/api';
+import { useSound } from '../../hooks/useSound';
 import '../../styles/final.css';
 
 // Importação com os nomes exatos solicitados
@@ -20,6 +21,9 @@ export default function Final() {
     const { partidaId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+    const { play: tocarChute } = useSound('/assets/audio/chute.mp3');
+    const { play: tocarExplosao } = useSound('/assets/audio/explosao.mp3');
+    const { play: tocarSadTrombone } = useSound('/assets/audio/sadtrombone.mp3');
 
     // Permite definir se veio como 'bom' ou 'ruim' via state da rota ou parâmetro (padrão é 'bom')
     const tipoFinal = location.state?.tipoFinal || 'bom';
@@ -34,6 +38,19 @@ export default function Final() {
     const [etapaFimAnimacao, setEtapaFimAnimacao] = useState(false);
 
     const imagensAtivas = tipoFinal === 'ruim' ? sequenciaRuim : sequenciaBom;
+
+    // Toca o som correspondente a cada frame da animação de saída
+    useEffect(() => {
+        if (!animandoSaida) return;
+
+        if (tipoFinal === 'ruim') {
+            if (indiceImagem === 1) tocarExplosao(); // explosão atinge o cientista
+            if (indiceImagem === 2) tocarSadTrombone(); // tela de GAME OVER
+        } else {
+            if (indiceImagem === 1) tocarChute(); // chute na porta
+            if (indiceImagem === 2) tocarExplosao(); // laboratório explode ao fundo
+        }
+    }, [animandoSaida, indiceImagem, tipoFinal, tocarChute, tocarExplosao, tocarSadTrombone]);
 
     const handleConfirmar = async (e) => {
         e.preventDefault();
@@ -67,35 +84,41 @@ export default function Final() {
         }
     };
 
-    // Efeito para passar os frames da sequência de imagens com tempo fluido (3.5 segundos por imagem)
+    // Efeito para passar os frames da sequência de imagens (duração variável por frame,
+    // pra dar tempo do som daquela cena tocar por inteiro antes de trocar)
     useEffect(() => {
         if (!animandoSaida || etapaFimAnimacao) return;
 
-        const intervalo = setInterval(() => {
+        // Frame da explosão no final ruim precisa durar o tempo do som de explosão (~2.2s)
+        const duracaoDoFrameAtual =
+            tipoFinal === 'ruim' && indiceImagem === 1 ? 2300 : 1000;
+
+        const timer = setTimeout(() => {
             setIndiceImagem((prev) => {
                 if (prev < imagensAtivas.length - 1) {
                     return prev + 1;
-                } else {
-                    clearInterval(intervalo);
-                    setEtapaFimAnimacao(true);
-                    return prev;
                 }
+                setEtapaFimAnimacao(true);
+                return prev;
             });
-        }, 1000); // 3500ms (3.5 segundos) por frame para dar tempo de absorver o contexto
+        }, duracaoDoFrameAtual);
 
-        return () => clearInterval(intervalo);
-    }, [animandoSaida, etapaFimAnimacao, imagensAtivas.length]);
+        return () => clearTimeout(timer);
+    }, [animandoSaida, etapaFimAnimacao, indiceImagem, imagensAtivas.length, tipoFinal]);
 
     // Retorna ao início após o término da animação da última imagem
     useEffect(() => {
         if (!etapaFimAnimacao) return;
 
+        // No final ruim, espera o sadtrombone (3.6s) tocar por inteiro antes de voltar ao menu
+        const tempoEspera = tipoFinal === 'ruim' ? 3700 : 2000;
+
         const timerFinal = setTimeout(() => {
             navigate('/');
-        }, 2000); // Tempo para apreciar o frame final ou o Game Over antes de voltar ao menu
+        }, tempoEspera);
 
         return () => clearInterval(timerFinal);
-    }, [etapaFimAnimacao, navigate]);
+    }, [etapaFimAnimacao, navigate, tipoFinal]);
 
     // Renderização da Sequência Animada com fluidez e Key para disparar o Fade-In
     if (animandoSaida) {
