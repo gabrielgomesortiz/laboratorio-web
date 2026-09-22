@@ -1,6 +1,5 @@
-// Placeholder da aplicação principal.
-// A estrutura do jogo será montada aqui no futuro.
+import { AppRoutes } from './routes/AppRoutes';
 
 export default function App() {
-  return <div>Laboratório em Fuga</div>;
+  return <AppRoutes />;
 }

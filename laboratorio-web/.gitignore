@@ -1,3 +1,4 @@
 # Leo — dependências locais e compilação da demonstração da Sala 3.
 node_modules/
-dist-sala3/
+dist/
+.env
