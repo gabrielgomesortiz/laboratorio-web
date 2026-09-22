@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_ROUTES } from '../config/api';
+import { useSound } from '../hooks/useSound';
 import '../styles/inicio.css';
 
 export default function Index() {
     const navigate = useNavigate();
+    const { play: tocarSirene } = useSound('/assets/audio/sirene.mp3');
+    const { play: tocarRonco, stop: pararRonco } = useSound(
+        '/assets/audio/roncando.mp3',
+        { loop: true, volume: 0.6 },
+    );
 
     const [isAlarmActive, setIsAlarmActive] = useState(false);
     const [isRedFrame, setIsRedFrame] = useState(false);
+    const alarmeAtivoRef = useRef(false);
 
     useEffect(() => {
         const imgRed = new Image();
@@ -17,10 +24,37 @@ export default function Index() {
         imgNormal.src = '/assets/backgrounds/inicio-acordado.png';
     }, []);
 
+    // Ronco toca em loop enquanto ele "dorme" na tela inicial. Navegadores bloqueiam
+    // áudio antes de qualquer interação do usuário, então tentamos tocar direto e,
+    // se for bloqueado, começamos assim que o usuário interagir pela primeira vez com a página.
+    useEffect(() => {
+        if (isAlarmActive) return;
+
+        tocarRonco();
+
+        const iniciarNoPrimeiroToque = () => {
+            if (alarmeAtivoRef.current) return;
+            tocarRonco();
+        };
+        const eventos = ['click', 'keydown', 'touchstart'];
+        eventos.forEach((evento) =>
+            document.addEventListener(evento, iniciarNoPrimeiroToque, { once: true }),
+        );
+
+        return () => {
+            eventos.forEach((evento) =>
+                document.removeEventListener(evento, iniciarNoPrimeiroToque),
+            );
+        };
+    }, [isAlarmActive, tocarRonco]);
+
     const handleStart = async () => {
         if (isAlarmActive) return;
 
+        alarmeAtivoRef.current = true;
         setIsAlarmActive(true);
+        pararRonco();
+        tocarSirene();
 
         try {
             const response = await fetch(API_ROUTES.partidas, {
@@ -48,9 +82,10 @@ export default function Index() {
 
             setTimeout(() => {
                 navigate(`/jogo/${partida.id}`);
-            }, 2500);
+            }, 8000);
         } catch (error) {
             console.error('Erro ao iniciar partida:', error);
+            alarmeAtivoRef.current = false;
             setIsAlarmActive(false);
             setIsRedFrame(false);
         }

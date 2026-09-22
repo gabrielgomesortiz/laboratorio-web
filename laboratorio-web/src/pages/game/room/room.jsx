@@ -4,11 +4,14 @@ import questoesPadrao from '../../../questoes/teorica';
 import questoesMatematica from '../../../questoes/calc';
 import { API_ROUTES } from '../../../config/api';
 import Timer from '../../../components/Timer';
+import { useSound } from '../../../hooks/useSound';
 import '../../../styles/salas.css';
 
 export default function Room({ numeroSala: propNumeroSala }) {
     const { partidaId, numeroSala: paramNumeroSala } = useParams();
     const navigate = useNavigate();
+    const { play: tocarAcerto } = useSound('/assets/audio/acerto.mp3');
+    const { play: tocarErro } = useSound('/assets/audio/erro.mp3');
 
     const salaAtual = propNumeroSala || parseInt(paramNumeroSala, 10) || 1;
 
@@ -127,6 +130,8 @@ export default function Room({ numeroSala: propNumeroSala }) {
         const eCorreto = opcao.valor === true;
 
         if (eCorreto) {
+            tocarAcerto();
+
             // SE FOR A SALA 4: TRAVA O CRONÔMETRO IMEDIATAMENTE E ENVIA PRO BANCO DE DADOS
             if (salaAtual === 4) {
                 await finalizarESalvarTempoNoBanco('CONCLUIDA');
@@ -159,6 +164,7 @@ export default function Room({ numeroSala: propNumeroSala }) {
 
         // SE JÁ ESTIVER NA TERCEIRA TENTATIVA E ERRAR NOVAMENTE -> GAME OVER (FINAL RUIM)
         if (tentativas >= 3) {
+            tocarErro();
             await aplicarPenalidadeBackend();
             await finalizarESalvarTempoNoBanco('DERROTA'); // Ou 'CANCELADA' / 'GAME_OVER' dependendo do seu enum
 
@@ -175,6 +181,7 @@ export default function Room({ numeroSala: propNumeroSala }) {
         }
 
         // Se ainda não chegou na 3ª tentativa, aplica a penalidade e avança para a próxima tentativa
+        tocarErro();
         await aplicarPenalidadeBackend();
 
         const proximaTentativa = tentativas + 1;
