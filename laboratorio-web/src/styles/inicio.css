@@ -17,25 +17,28 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 32px;
   box-sizing: border-box;
   background-color: #0b0f19;
   overflow: hidden;
 }
 
-/* Moldura Base */
+/* Moldura Base Retangular Proporcional */
 .scene-frame {
   position: relative;
   width: 100%;
-  max-width: 150rem;
+  /* Restringe o tamanho limite para ficar um retângulo bem definido */
+  max-width: 1150px; 
+  max-height: 150vh; 
   aspect-ratio: 16 / 9;
   background-position: center;
   background-repeat: no-repeat;
-  background-size: contain;
+  /* 'cover' garante que a imagem preencha o retângulo de ponta a ponta */
+  background-size: cover; 
   border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
   overflow: hidden;
-  transition: background-image 0.1s ease-in-out;
+  transition: background-image 0.1s ease-in-out, transform 0.2s ease;
 }
 
 /* Estados da Imagem de Fundo */
@@ -78,8 +81,8 @@ body,
 /* Badge Status */
 .start-screen__status {
   position: absolute;
-  bottom: 16px;
-  right: 20px;
+  bottom: 1em;
+  right: 1em;
   font-family: monospace;
   font-size: 13px;
   color: #22c55e;

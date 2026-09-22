@@ -35,15 +35,12 @@ export default function Index() {
 
             if (!response.ok) {
                 const errorText = await response.text();
-
                 throw new Error(
                     `Não foi possível criar a partida. Status: ${response.status}. ${errorText}`,
                 );
             }
 
             const partida = await response.json();
-
-            console.log('Partida criada:', partida);
 
             if (!partida?.id) {
                 throw new Error('A API não retornou o ID da partida.');
@@ -54,7 +51,6 @@ export default function Index() {
             }, 2500);
         } catch (error) {
             console.error('Erro ao iniciar partida:', error);
-
             setIsAlarmActive(false);
             setIsRedFrame(false);
         }
