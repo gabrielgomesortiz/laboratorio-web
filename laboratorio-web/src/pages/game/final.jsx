@@ -7,14 +7,14 @@ import '../../styles/final.css';
 import final_bom from '../../../public/assets/backgrounds/final/final_bom.png';
 import final_bom2 from '../../../public/assets/backgrounds/final/final_bom2.png';
 import final_bom3 from '../../../public/assets/backgrounds/final/final_bom3.png';
-import final_bom4 from '../../../public/assets/backgrounds/final/final_bom4.png';
+import final_ruim3 from '../../../public/assets/backgrounds/final/final_ruim3.png';
 
 import final_ruim from '../../../public/assets/backgrounds/final/final_ruim.png';
 import final_ruim2 from '../../../public/assets/backgrounds/final/final_ruim2.png';
 
 // Sequências mapeadas
-const sequenciaBom = [final_bom, final_bom2, final_bom3, final_bom4];
-const sequenciaRuim = [final_ruim, final_ruim2];
+const sequenciaBom = [final_bom, final_bom2, final_bom3];
+const sequenciaRuim = [final_ruim, final_ruim3,  final_ruim2];
 
 export default function Final() {
     const { partidaId } = useParams();
