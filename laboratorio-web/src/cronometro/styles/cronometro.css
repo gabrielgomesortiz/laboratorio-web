@@ -1,0 +1,40 @@
+:root {
+  --timer-bg: #18181b;
+  --timer-text: #ffffff;
+  --timer-border: #52525b;
+  --timer-alert: #facc15;
+  --timer-size: 1.75rem;
+  --timer-pulse-duration: 2.4s;
+}
+
+.cronometro-hud {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  display: grid;
+  gap: 0.15rem;
+  min-width: 8rem;
+  padding: 0.75rem;
+  color: var(--timer-text);
+  background: var(--timer-bg);
+  border: 1px solid var(--timer-border);
+  border-radius: 0.35rem;
+  text-align: right;
+}
+
+.cronometro-hud__label,
+.cronometro-hud__status {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.cronometro-hud__value {
+  font-size: var(--timer-size);
+  line-height: 1;
+}
+
+.cronometro-hud--pulse .cronometro-hud__value { animation: timer-pulse var(--timer-pulse-duration) ease-in-out infinite; }
+.cronometro-hud__status { color: var(--timer-alert); }
+@keyframes timer-pulse { 50% { transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) { .cronometro-hud--pulse .cronometro-hud__value { animation: none; } }

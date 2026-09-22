@@ -1,6 +1,12 @@
-// Placeholder da aplicação principal.
-// A estrutura do jogo será montada aqui no futuro.
+import Game from './components/Game/Game.jsx';
+import CronometroHUD from './cronometro/components/CronometroHUD.jsx';
+import { TimerProvider } from './cronometro/context/TimerContext.jsx';
 
 export default function App() {
-  return <div>Laboratório em Fuga</div>;
+  return (
+    <TimerProvider>
+      <CronometroHUD />
+      <Game />
+    </TimerProvider>
+  );
 }
